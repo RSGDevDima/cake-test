@@ -1,0 +1,27 @@
+name: Build
+on: [push, pull_request]
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    steps:
+      - name: Get the sources
+        uses: actions/checkout@v1
+      - name: Install Node 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Restore the dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Run the tests with code coverage
+        run: npm run test
+      - name: Upload the code coverage report to Coveralls
+        if: github.event_name != 'pull_request'
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}

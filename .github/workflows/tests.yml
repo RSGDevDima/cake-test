@@ -1,0 +1,130 @@
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    env:
+      TOOLS_DIRECTORY: tools
+    steps:
+      - name: Get the sources
+        uses: actions/checkout@v1
+      - name: Install Node 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Install the .NET 6 SDK
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.0.x'
+      - name: Run a specific Cake script
+        uses: ./
+        with:
+          script-path: build.cake
+      - name: Run a specific target
+        uses: ./
+        with:
+          target: Successful-Task
+      - name: Remove the tools directory
+        run: rm -rf $TOOLS_DIRECTORY
+        shell: bash
+      - name: Run with a specific Cake version
+        env:
+          EXPECTED_CAKE_VERSION: 2.1.0
+        uses: ./
+        with:
+          cake-version: 2.1.0
+          target: Test-Cake-Version
+      - name: Run with a different Cake version in the same build
+        env:
+          EXPECTED_CAKE_VERSION: 2.0.0
+        uses: ./
+        with:
+          cake-version: 2.0.0
+          target: Test-Cake-Version
+      - name: Run with tool manifest
+        env:
+          EXPECTED_CAKE_VERSION: 1.2.0
+        uses: ./
+        with:
+          cake-version: tool-manifest
+          target: Test-Cake-Version
+      - name: Run automatic bootstrapping of Cake modules (Cake >= 1.0.0)
+        uses: ./
+        with:
+          cake-bootstrap: auto
+          cake-version: 1.0.0
+          script-path: module.cake
+      - name: Remove the tools directory
+        run: rm -rf $TOOLS_DIRECTORY
+        shell: bash
+      - name: Run automatic bootstrapping of Cake modules (Cake < 1.0.0)
+        uses: ./
+        with:
+          cake-bootstrap: auto
+          cake-version: 0.38.5
+          script-path: build.cake
+          target: Successful-Task
+      - name: Remove the tools directory
+        run: rm -rf $TOOLS_DIRECTORY
+        shell: bash
+      - name: Run explicit bootstrapping of Cake modules (Cake >= 1.0.0)
+        uses: ./
+        with:
+          cake-bootstrap: explicit
+          cake-version: 1.0.0
+          script-path: module.cake
+      - name: Remove the tools directory
+        run: rm -rf $TOOLS_DIRECTORY
+        shell: bash
+      - name: Run explicit bootstrapping of Cake modules (Cake < 1.0.0)
+        uses: ./
+        with:
+          cake-bootstrap: explicit
+          cake-version: 0.38.5
+          script-path: module.cake
+      - name: Remove the tools directory
+        run: rm -rf $TOOLS_DIRECTORY
+        shell: bash
+      - name: Run skip bootstrapping of Cake modules (Cake >= 1.0.0)
+        uses: ./
+        with:
+          cake-bootstrap: skip
+          cake-version: 1.0.0
+          script-path: build.cake
+          target: Successful-Task
+      - name: Run skip bootstrapping of Cake modules (Cake < 1.0.0)
+        uses: ./
+        with:
+          cake-bootstrap: skip
+          cake-version: 0.38.5
+          script-path: build.cake
+          target: Successful-Task
+      - name: Run with a specific verbosity level
+        uses: ./
+        env:
+          EXPECTED_VERBOSITY: Diagnostic
+        with:
+          verbosity: Diagnostic
+          target: Test-Verbosity
+      - name: Do a dry run
+        uses: ./
+        with:
+          dry-run: true
+          target: Test-Dry-Run
+      - name: Run with custom script parameters
+        uses: ./
+        env:
+          EXPECTED_STRING_ARGUMENT: '''value'''
+          EXPECTED_NUMERIC_ARGUMENT: '3'
+          EXPECTED_BOOLEAN_ARGUMENT: 'true'
+        with:
+          script-path: build.cake
+          target: Test-Script-Parameters
+          arguments: |
+            string-parameter: 'value'
+            numeric-parameter: 3
+            boolean-parameter: true

@@ -1,0 +1,36 @@
+name: 'Cake Action'
+description: 'Run a Cake script as part of your build.'
+author: 'Enrico Campidoglio'
+branding:
+  icon: 'box'
+  color: 'yellow'
+inputs:
+  script-path:
+    description: 'The path of the Cake script to run.'
+    required: false
+    default: 'build.cake'
+  target:
+    description: 'The name of the task to execute. Note that this argument must be supported by the script.'
+    required: false
+  verbosity:
+    description: 'The verbosity level with which to run the script. Valid values are: Quiet, Minimal, Normal, Verbose or Diagnostic.'
+    required: false
+    default: 'Normal'
+  dry-run:
+    description: 'Tells Cake to do a dry run of the script.'
+    required: false
+    default: 'false'
+  arguments:
+    description: 'Any custom parameters to pass to the script. Multiple parameters are defined on separate lines.'
+    required: false
+  cake-version:
+    description: 'The version of Cake to install. Either a specific version, "latest" (default) or "tool-manifest".'
+    default: 'latest'
+    required: false
+  cake-bootstrap:
+    description: 'Flag for if Cake modules should be installed/bootstrapped.'
+    required: false
+    default: 'false'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
