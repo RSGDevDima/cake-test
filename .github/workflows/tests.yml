@@ -4,11 +4,6 @@ jobs:
   test:
     name: Test
     runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, ubuntu-latest]
-    env:
-      TOOLS_DIRECTORY: tools
     steps:
       - name: Get the sources
         uses: actions/checkout@v1
